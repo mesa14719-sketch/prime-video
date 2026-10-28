@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prime Video Cookie Tool</title>
+  <style>
+    :root {
+      --bg: #0a0f14;
+      --panel: #111a22;
+      --border: #1f3344;
+      --text: #d8e8f5;
+      --muted: #7a9ab5;
+      --green: #3dff9a;
+      --red: #ff4d6d;
+      --blue: #4db8ff;
+      --amber: #ffb84d;
+      --mono: "JetBrains Mono", "Fira Code", Consolas, monospace;
+      --sans: "Segoe UI", system-ui, sans-serif;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--sans);
+      background: radial-gradient(ellipse at top, #122033 0%, var(--bg) 55%);
+      color: var(--text);
+      min-height: 100vh;
+      padding: 24px;
+    }
+
+    .wrap { max-width: 1200px; margin: 0 auto; }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    h1 {
+      font-size: 1.4rem;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .badge {
+      font-size: 0.75rem;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: 999px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    }
+
+    .panel h2 {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      margin-bottom: 14px;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 280px;
+      background: #060b10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 12px;
+      resize: vertical;
+      line-height: 1.5;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 2px rgba(77, 184, 255, 0.15);
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+
+    .meta-item {
+      background: #060b10;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 0.8rem;
+    }
+
+    .meta-item span {
+      display: block;
+      color: var(--muted);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      margin-bottom: 4px;
+    }
+
+    .meta-item strong.ok { color: var(--green); }
+    .meta-item strong.bad { color: var(--red); }
+
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.85rem;
+      padding: 12px 18px;
+      transition: transform 0.1s, opacity 0.15s;
+    }
+
+    button:active { transform: scale(0.98); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .btn-primary {
+      width: 100%;
+      background: linear-gradient(135deg, #c41e3a, #8b0000);
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .btn-copy {
+      background: #1a2a38;
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      font-size: 0.75rem;
+    }
+
+    .status-pill {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+    }
+
+    .status-pill.alive { background: rgba(61, 255, 154, 0.15); color: var(--green); }
+    .status-pill.dead { background: rgba(255, 77, 109, 0.15); color: var(--red); }
+    .status-pill.pending { background: rgba(122, 154, 181, 0.15); color: var(--muted); }
+
+    .result-empty {
+      color: var(--muted);
+      font-size: 0.9rem;
+      padding: 40px 0;
+      text-align: center;
+    }
+
+    .account-grid {
+      display: grid;
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.88rem;
+    }
+
+    .row:last-child { border-bottom: none; }
+    .row .label { color: var(--muted); }
+    .row .value { text-align: right; word-break: break-all; }
+    .row .value.premium { color: var(--red); font-weight: 700; }
+
+    .links { margin-top: 18px; }
+    .link-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .link-row label {
+      min-width: 64px;
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .link-row input {
+      flex: 1;
+      background: #060b10;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.7rem;
+      padding: 8px 10px;
+    }
+
+    .notice {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 184, 77, 0.08);
+      border: 1px solid rgba(255, 184, 77, 0.25);
+      color: var(--amber);
+      font-size: 0.8rem;
+      line-height: 1.5;
+    }
+
+    .error {
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 8px;
+      background: rgba(255, 77, 109, 0.1);
+      border: 1px solid rgba(255, 77, 109, 0.3);
+      color: #ff8fa3;
+      font-size: 0.85rem;
+    }
+
+    .btn-launch {
+      width: 100%;
+      background: linear-gradient(135deg, #00a8e1, #0077b6);
+      color: #fff;
+      margin-top: 10px;
+    }
+
+    .btn-secondary {
+      width: 100%;
+      background: linear-gradient(135deg, #1a4a6b, #0d2a40);
+      color: #fff;
+      margin-top: 8px;
+    }
+
+    .btn-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 8px;
+    }
+
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      color: var(--muted);
+      font-size: 0.75rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Prime Video Cookie Tool</h1>
+      <span class="badge">LOCAL · SELF-HOSTED</span>
+    </header>
+
+    <div class="grid">
+      <section class="panel">
+        <h2>Cookie Validator</h2>
+        <textarea id="cookieInput" placeholder="Paste Netscape or JSON Prime Video cookies here...
+
+Example (Netscape):
+.primevideo.com	TRUE	/	TRUE	2082758400	session-token	YOUR_TOKEN
+.primevideo.com	TRUE	/	TRUE	2082758400	ubid-main-av	YOUR_UBID"></textarea>
+
+        <div class="meta" id="inputMeta">
+          <div class="meta-item"><span>Format</span><strong id="fmtDetect">—</strong></div>
+          <div class="meta-item"><span>Total Cookies</span><strong id="cookieCount">—</strong></div>
+          <div class="meta-item"><span>session-token</span><strong id="hasSession">—</strong></div>
+          <div class="meta-item"><span>ubid-main</span><strong id="hasUbid">—</strong></div>
+        </div>
+
+        <button class="btn-primary" id="checkBtn">Initiate Verification</button>
+        <div class="error" id="errorBox" hidden></div>
+      </section>
+
+      <section class="panel">
+        <h2>Analysis Report</h2>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:12px;">
+          <span class="status-pill pending" id="statusPill">PENDING</span>
+        </div>
+
+        <div id="resultArea">
+          <p class="result-empty">Paste cookies and click Initiate Verification.</p>
+        </div>
+      </section>
+    </div>
+
+    <p class="footer">Prime Video login link generator · install extension once · then paste link in any Chrome window</p>
+  </div>
+
+  <script>
+    const cookieInput = document.getElementById("cookieInput");
+    const checkBtn = document.getElementById("checkBtn");
+    const errorBox = document.getElementById("errorBox");
+    const resultArea = document.getElementById("resultArea");
+    const statusPill = document.getElementById("statusPill");
+
+    const AUTH_KEYS = [
+      "session-token", "x-main-av", "x-main", "at-main-av", "at-main",
+      "sess-at-main-av", "ubid-main-av", "ubid-main", "session-id"
+    ];
+
+    function detectFormat(text) {
+      const trimmed = text.trim();
+      if (!trimmed) return "—";
+      if (trimmed.startsWith("[") || trimmed.startsWith("{")) return "JSON";
+      if (trimmed.includes("\t") && /TRUE|FALSE/.test(trimmed)) return "NETSCAPE";
+      return "RAW";
+    }
+
+    function parseLocalMeta(text) {
+      const lower = text.toLowerCase();
+      const names = new Set();
+      for (const line of text.split("\n")) {
+        const parts = line.split("\t");
+        if (parts.length >= 7) names.add(parts[5]);
+      }
+      for (const key of AUTH_KEYS) {
+        if (lower.includes(key + "=") || lower.includes(key + "\t")) names.add(key);
+      }
+      return names;
+    }
+
+    function updateInputMeta() {
+      const text = cookieInput.value;
+      const names = parseLocalMeta(text);
+      document.getElementById("fmtDetect").textContent = detectFormat(text);
+      document.getElementById("cookieCount").textContent = names.size || "—";
+
+      const session = names.has("session-token");
+      const ubid = names.has("ubid-main-av") || names.has("ubid-main");
+      document.getElementById("hasSession").textContent = session ? "FOUND" : "—";
+      document.getElementById("hasSession").className = session ? "ok" : "";
+      document.getElementById("hasUbid").textContent = ubid ? "FOUND" : "—";
+      document.getElementById("hasUbid").className = ubid ? "ok" : "";
+    }
+
+    function setStatus(status) {
+      statusPill.textContent = status;
+      statusPill.className = "status-pill " + (status === "ALIVE" ? "alive" : status === "DEAD" ? "dead" : "pending");
+    }
+
+    function copyText(text) {
+      navigator.clipboard.writeText(text).catch(() => {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        document.body.removeChild(ta);
+      });
+    }
+
+    let lastResult = null;
+    let lastCookies = "";
+
+    function renderResult(data) {
+      lastResult = data;
+      const acc = data.account || {};
+      const planClass = data.alive && acc.is_paid ? "premium" : "";
+      const standalone = data.standalone_links || {};
+      const local = data.local_links || {};
+
+      const linkBlock = (prefix, title, links, hint) => {
+        if (!links || !Object.keys(links).length) return "";
+        return `
+          <div class="links">
+            <h2 style="margin:14px 0 6px;font-size:0.8rem;">${title}</h2>
+            <p style="font-size:0.72rem;color:var(--muted);margin-bottom:8px;">${hint}</p>
+            ${Object.entries(links).map(([key, url]) => `
+              <div class="link-row">
+                <label>${key}</label>
+                <input readonly value="${url.replace(/"/g, "&quot;")}" id="link-${prefix}-${key}" />
+                <button class="btn-copy" data-copy="link-${prefix}-${key}">Copy</button>
+              </div>
+            `).join("")}
+          </div>`;
+      };
+
+      resultArea.innerHTML = `
+        <p style="font-size:0.85rem;color:var(--muted);margin-bottom:12px;">${data.message}</p>
+        <div class="account-grid">
+          <div class="row"><span class="label">Profile</span><span class="value">${acc.profile || "—"}</span></div>
+          <div class="row"><span class="label">Region</span><span class="value">${acc.region || "—"}</span></div>
+          <div class="row"><span class="label">Plan / Tier</span><span class="value ${planClass}">${acc.plan || "—"}</span></div>
+          <div class="row"><span class="label">Customer ID</span><span class="value">${acc.customer_id || "—"}</span></div>
+        </div>
+
+        ${data.alive ? `
+          ${linkBlock("standalone", "Standalone (no terminal)", standalone, "Starts with https://www.primevideo.com — paste in Chrome/incognito")}
+          ${linkBlock("local", "Local backup (terminal required)", local, "Starts with http://127.0.0.1 — use if standalone fails")}
+
+          <div class="notice">
+            <strong>Fix steps (v1.4.0):</strong><br>
+            1. chrome://extensions → reload <strong>Prime Video Session Import</strong> (v1.4.0)<br>
+            2. Details → <strong>Allow in incognito</strong> ON<br>
+            3. Try <strong>Standalone</strong> PC link first<br>
+            4. If it fails, run <code>python3 prime_checker.py</code> and use <strong>Local backup</strong> link<br><br>
+            You should briefly see “Prime Video Login → Importing session…” then Prime opens logged in.
+          </div>
+        ` : `
+          <div class="notice">Session is not valid. Login links cannot be generated for dead cookies.</div>
+        `}
+
+        <div class="btn-row" style="margin-top:14px;">
+          <button class="btn-primary btn-secondary" id="copyConfigBtn">Copy Netscape Cookies</button>
+          <button class="btn-primary btn-secondary" id="copyJsonBtn">Copy Cookie-Editor JSON</button>
+        </div>
+      `;
+
+      document.getElementById("copyConfigBtn")?.addEventListener("click", () => copyText(data.netscape_config || ""));
+      document.getElementById("copyJsonBtn")?.addEventListener("click", () =>
+        copyText(JSON.stringify(data.cookie_editor_json || [], null, 2))
+      );
+
+      resultArea.querySelectorAll("[data-copy]").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const input = document.getElementById(btn.dataset.copy);
+          if (input) copyText(input.value);
+        });
+      });
+    }
+
+    async function runCheck() {
+      errorBox.hidden = true;
+      const cookies = cookieInput.value.trim();
+      if (!cookies) {
+        errorBox.textContent = "Paste your Prime Video cookies first.";
+        errorBox.hidden = false;
+        return;
+      }
+
+      lastCookies = cookies;
+      checkBtn.disabled = true;
+      setStatus("CHECKING...");
+
+      try {
+        const res = await fetch("/api/check", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cookies }),
+        });
+        const data = await res.json();
+        if (!res.ok) throw new Error(data.error || "Request failed");
+        setStatus(data.status);
+        renderResult(data);
+      } catch (err) {
+        setStatus("ERROR");
+        errorBox.textContent = err.message;
+        errorBox.hidden = false;
+      } finally {
+        checkBtn.disabled = false;
+      }
+    }
+
+    cookieInput.addEventListener("input", updateInputMeta);
+    checkBtn.addEventListener("click", runCheck);
+    updateInputMeta();
+  </script>
+</body>
+</html>
