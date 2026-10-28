@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Prime Video Login</title>
+  <style>
+    body {
+      margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center;
+      background: #0a0f14; color: #d8e8f5; font-family: system-ui, sans-serif;
+    }
+    .box { text-align: center; padding: 32px; max-width: 420px; }
+    h1 { font-size: 1.1rem; margin-bottom: 12px; }
+    #status { color: #7a9ab5; line-height: 1.5; }
+    .err { color: #ff6b8a !important; }
+    .ok { color: #3dff9a !important; }
+    .spin {
+      width: 28px; height: 28px; margin: 16px auto 0;
+      border: 3px solid #1f3344; border-top-color: #00a8e1;
+      border-radius: 50%; animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h1>Prime Video Login</h1>
+    <p id="status">Importing session...</p>
+    <div class="spin" id="spin"></div>
+  </div>
+  <script src="import.js"></script>
+</body>
+</html>
